@@ -6,9 +6,12 @@ import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
+
 import javax.management.timer.Timer;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -17,10 +20,8 @@ import java.util.List;
 
 @Slf4j
 public class StockUtils {
+    private static final String FOLDER_OHLC = "C:\\Users\\KGM\\Downloads\\stock_telegram\\ohlc";
     private static final SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
-    private static final OkHttpClient client = new OkHttpClient();
-    private static final String FORMAT_URL_STOCK = "https://finfo-api.vndirect.com.vn/v4/stock_prices/?sort=date&size=20&q=code:__STOCK__ID__~date:gte:__DAY_START__~date:lte:__DAY_END__&page=1";
-
 
     public static Float getChangeDay(String stock_id, String watch_day) {
         try {
@@ -35,17 +36,7 @@ public class StockUtils {
                     date = new Date(date.getTime() - Timer.ONE_DAY);
                 }
                 watch_day = date_format.format(date);
-                String date_start = date_format.format(new Date(date.getTime() - 7 * Timer.ONE_DAY));
-                String date_end = date_format.format(new Date(date.getTime() + 7 * Timer.ONE_DAY));
-                String url_request = FORMAT_URL_STOCK.replace("__STOCK__ID__", stock_id)
-                        .replace("__DAY_START__", date_start)
-                        .replace("__DAY_END__", date_end);
-                log.info("request to get price {}", url_request);
-                Request request = new Request.Builder()
-                        .url(url_request)
-                        .header("Content-Type", "application/x-www-form-urlencoded")
-                        .build();
-                String data_stock = client.newCall(request).execute().body().string();
+                String data_stock = FileUtils.readFileToString(new File(FOLDER_OHLC + "/" + stock_id + ".txt"), "UTF-8");
                 return parseStock(data_stock, watch_day, false).getMiddle();
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -69,17 +60,7 @@ public class StockUtils {
                 date = new Date(date.getTime() - Timer.ONE_DAY);
             }
             watch_day = date_format.format(date);
-            String date_start = date_format.format(new Date(date.getTime() - 7 * Timer.ONE_DAY));
-            String date_end = date_format.format(new Date(date.getTime() + 7 * Timer.ONE_DAY));
-            String url_request = FORMAT_URL_STOCK.replace("__STOCK__ID__", stock_id)
-                    .replace("__DAY_START__", date_start)
-                    .replace("__DAY_END__", date_end);
-            log.info("request to get price {}", url_request);
-            Request request = new Request.Builder()
-                    .url(url_request)
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .build();
-            String data_stock = client.newCall(request).execute().body().string();
+            String data_stock = FileUtils.readFileToString(new File(FOLDER_OHLC + "/" + stock_id + ".txt"), "UTF-8");
             return parseStock(data_stock, watch_day, true);
 
         } catch (Exception e) {
@@ -113,7 +94,7 @@ public class StockUtils {
                     float change = jsonObject.get("change").getAsFloat();
                     three_day_following_change.add(change);
                 }
-                for (int i = point_index + 3; i > point_index ; i--) {
+                for (int i = point_index + 3; i > point_index; i--) {
                     JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
                     float change = jsonObject.get("change").getAsFloat();
                     three_day_previous_change.add(change);
