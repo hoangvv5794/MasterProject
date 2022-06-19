@@ -20,8 +20,15 @@ import java.util.List;
 
 @Slf4j
 public class StockUtils {
+    private static final OkHttpClient client = new OkHttpClient();
+    private static final String URL_PATH = "https://finfo-api.vndirect.com.vn/v4/stock_prices/?sort=date&size=20&q=code:__STOCK_ID__~date:gte:__START_DAY__~date:lte:__END_DAY__&page=1";
+
     private static final String FOLDER_OHLC = "C:\\Users\\KGM\\Downloads\\stock_telegram\\ohlc";
     private static final SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
+
+    public static void main(String[] args) {
+        System.out.println(getChangeRealTime("VNM", "2022-06-19"));
+    }
 
     public static Float getChangeDay(String stock_id, String watch_day) {
         try {
@@ -38,6 +45,39 @@ public class StockUtils {
                 watch_day = date_format.format(date);
                 String data_stock = FileUtils.readFileToString(new File(FOLDER_OHLC + "/" + stock_id + ".txt"), "UTF-8");
                 return parseStock(data_stock, watch_day, false).getMiddle();
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return 0f;
+    }
+
+    public static Float getChangeRealTime(String stock_id, String watch_day) {
+        try {
+            try {
+                // check watch_day => if watch_day is weekend => turn watch_day to Friday and processing
+                Date date = date_format.parse(watch_day);
+                int day_of_week = getDayNumberOld(date);
+                if (day_of_week == 1) {
+                    date = new Date(date.getTime() - 2 * Timer.ONE_DAY);
+                }
+                if (day_of_week == 7) {
+                    date = new Date(date.getTime() - Timer.ONE_DAY);
+                }
+                String start_day = date_format.format(new Date(date.getTime() - 3 * Timer.ONE_DAY));
+                String end_day = date_format.format(new Date(date.getTime() + 3 * Timer.ONE_DAY));
+                watch_day = date_format.format(date);
+                String url = URL_PATH.replace("__STOCK_ID__", stock_id)
+                        .replace("__START_DAY__", start_day)
+                        .replace("__END_DAY__", end_day);
+                Request request = new Request.Builder()
+                        .url(url)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .build();
+                String data_response = client.newCall(request).execute().body().string();
+                return parseStock(data_response, watch_day, false).getMiddle();
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -71,7 +111,8 @@ public class StockUtils {
 
     private static Triple<List<Float>, Float, List<Float>> parseStock(String data_stock, String day_watch, boolean get_another_day) {
         try {
-            JsonArray jsonArray = JsonParser.parseString(data_stock)
+            JsonArray jsonArray = JsonParser
+                    .parseString(data_stock)
                     .getAsJsonObject()
                     .getAsJsonArray("data");
             // find watch_day

@@ -19,7 +19,7 @@ public class EsUtils {
         try {
             highLevelClient = new RestHighLevelClient(
                     RestClient.builder(
-                            new HttpHost("localhost", 7000, "http")));
+                            new HttpHost("202.191.57.62", 7000, "http")));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

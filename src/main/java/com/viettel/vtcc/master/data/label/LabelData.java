@@ -24,7 +24,7 @@ public class LabelData {
     private static final String FOLDER_FORUM_INPUT = "C:\\Users\\KGM\\Downloads\\data_forum\\data_forum\\forum_data_contain_stock";
 
     public static void main(String[] args) {
-//        process_telegram();
+        process_telegram();
         process_forum();
     }
 
@@ -52,6 +52,7 @@ public class LabelData {
                                     String date_short = date.split(" ")[0];
                                     Triple<List<Float>, Float, List<Float>> triple = StockUtils.getPriceInDay(stock_id, date_short);
                                     labelModel.setChange(triple.getMiddle());
+                                    labelModel.setNext_change(triple.getRight().get(0));
                                     labelModel.setThree_day_previous_change(triple.getLeft());
                                     labelModel.setThree_day_following_change(triple.getRight());
                                     fop.write((labelModel + "\n").getBytes(StandardCharsets.UTF_8));
@@ -104,6 +105,7 @@ public class LabelData {
                                     String date_short = date_format.split(" ")[0];
                                     Triple<List<Float>, Float, List<Float>> triple = StockUtils.getPriceInDay(stock_id, date_short);
                                     labelModel.setChange(triple.getMiddle());
+                                    labelModel.setNext_change(triple.getRight().get(0));
                                     labelModel.setThree_day_previous_change(triple.getLeft());
                                     labelModel.setThree_day_following_change(triple.getRight());
                                     fop.write((labelModel + "\n").getBytes(StandardCharsets.UTF_8));

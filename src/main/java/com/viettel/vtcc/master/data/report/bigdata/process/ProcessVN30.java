@@ -23,7 +23,7 @@ public class ProcessVN30 {
             for (String index : index_30.split(",")) {
                 try {
                     String watch_day = date_format.format(new Date());
-                    float change = StockUtils.getChangeDay(index, watch_day);
+                    float change = StockUtils.getChangeRealTime(index, watch_day);
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("stock_id", index);
                     jsonObject.addProperty("value", change);

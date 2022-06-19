@@ -3,7 +3,6 @@ package com.viettel.vtcc.master.data.label.model;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -13,6 +12,7 @@ public class LabelModel {
     private String date;
     private String stock;
     private float change;
+    private float next_change;
     private List<Float> three_day_previous_change;
     private List<Float> three_day_following_change;
 
@@ -25,6 +25,7 @@ public class LabelModel {
                 .append(stock).append("\t")
                 .append(StringUtils.join(three_day_previous_change, ";")).append("\t")
                 .append(change).append("\t")
+                .append(next_change).append("\t")
                 .append(StringUtils.join(three_day_following_change, ";")).append("\t")
                 .toString();
     }
