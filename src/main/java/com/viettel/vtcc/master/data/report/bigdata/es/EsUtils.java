@@ -33,9 +33,9 @@ public class EsUtils {
         }
     }
 
-    public static void indexDocument(String data, String index) {
+    public static void indexDocument(String data, String index, String doc_id) {
         try {
-            IndexRequest request = new IndexRequest(index);
+            IndexRequest request = new IndexRequest(index, "doc", doc_id);
             request.source(data, XContentType.JSON);
             IndexResponse indexResponse = highLevelClient.index(request, RequestOptions.DEFAULT);
             log.info("result index {}", indexResponse.getResult().getLowercase());

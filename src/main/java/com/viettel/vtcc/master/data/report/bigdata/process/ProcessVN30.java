@@ -29,7 +29,7 @@ public class ProcessVN30 {
                     jsonObject.addProperty("value", change);
                     String data = jsonObject.toString();
                     log.info("write data to es {} {}", index, change);
-                    EsUtils.indexDocument(data, "index_30");
+                    EsUtils.indexDocument(data, "index_30", index);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
